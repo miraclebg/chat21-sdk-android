@@ -300,8 +300,8 @@ public class ConversationMessagesHandler {
                                 }
 
                                 //TODO settare status a 200 qui
-
-                            } catch (ChatFieldNotFoundException cfnfe) {
+                            }
+                            /*} catch (ChatFieldNotFoundException cfnfe) {
                                 Log.w(TAG, "Error decoding message on onChildAdded " + cfnfe.getMessage());
                                 Message message = new Message();
                                 if (conversationMessagesListeners != null) {
@@ -309,7 +309,7 @@ public class ConversationMessagesHandler {
                                         conversationMessagesListener.onConversationMessageReceived(message, true, null);
                                     }
                                 }
-                            } catch (Exception e) {
+                            }*/ catch (Exception e) {
                                 if (conversationMessagesListeners != null) {
                                     for (ConversationMessagesListener conversationMessagesListener : conversationMessagesListeners) {
                                         conversationMessagesListener.onConversationMessageReceived(null, false, new ChatRuntimeException(e));

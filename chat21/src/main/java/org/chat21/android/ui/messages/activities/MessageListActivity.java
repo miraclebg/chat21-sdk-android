@@ -1,26 +1,15 @@
 package org.chat21.android.ui.messages.activities;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.Px;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
@@ -33,6 +22,19 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.Px;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -62,6 +64,7 @@ import org.chat21.android.core.messages.models.Message;
 import org.chat21.android.core.presence.PresenceHandler;
 import org.chat21.android.core.presence.listeners.PresenceListener;
 import org.chat21.android.core.users.models.IChatUser;
+import org.chat21.android.storage.IStorageHandler;
 import org.chat21.android.storage.OnUploadedCallback;
 import org.chat21.android.storage.StorageHandler;
 import org.chat21.android.ui.ChatUI;
@@ -90,6 +93,7 @@ public class MessageListActivity extends AppCompatActivity
     private static final String TAG = MessageListActivity.class.getName();
 
     public static final int _INTENT_ACTION_GET_PICTURE = 853;
+    public static final int _REQ_CODE_FILE_PERM = 442;
 
     private PresenceHandler presenceHandler = null;
     private ConversationMessagesHandler conversationMessagesHandler;
@@ -253,7 +257,7 @@ public class MessageListActivity extends AppCompatActivity
                 return false;
             } else {
                 String recipient = getIntent().getStringExtra("sender");
-                return StringUtils.isValid(recipient) ? true : false;
+                return StringUtils.isValid(recipient);
             }
         }
     }
@@ -355,6 +359,12 @@ public class MessageListActivity extends AppCompatActivity
         mEmojiBar = (LinearLayout) findViewById(R.id.main_activity_emoji_bar);
     }
 
+    public void setAllowsToolbarClick(boolean allowsToolbarClick) {
+        this.allowsToolbarClick = allowsToolbarClick;
+    }
+
+    private boolean allowsToolbarClick = true;
+
     private void initDirectToolbar(final IChatUser recipient) {
         // toolbar picture
         setPicture(recipient.getProfilePictureUrl(), R.drawable.ic_person_avatar);
@@ -365,11 +375,13 @@ public class MessageListActivity extends AppCompatActivity
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MessageListActivity.this,
-                        PublicProfileActivity.class);
+                if (allowsToolbarClick) {
+                    Intent intent = new Intent(MessageListActivity.this,
+                            PublicProfileActivity.class);
 
-                intent.putExtra(ChatUI.BUNDLE_RECIPIENT, recipient);
-                startActivity(intent);
+                    intent.putExtra(ChatUI.BUNDLE_RECIPIENT, recipient);
+                    startActivity(intent);
+                }
             }
         });
     }
@@ -624,6 +636,22 @@ public class MessageListActivity extends AppCompatActivity
     private void showAttachBottomSheet() {
         Log.d(TAG, "MessageListActivity.onAttachClicked");
 
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    },
+                    _REQ_CODE_FILE_PERM);
+        } else {
+            presentBottomSheetAttach();
+        }
+    }
+
+    private void presentBottomSheetAttach() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         BottomSheetAttach dialog = BottomSheetAttach.newInstance(recipient, channelType);
         dialog.show(ft, BottomSheetAttach.class.getName());
@@ -683,28 +711,66 @@ public class MessageListActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,
+                permissions,
+                grantResults);
+
+        if (requestCode == _REQ_CODE_FILE_PERM) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                presentBottomSheetAttach();
+            } else {
+                Toast.makeText(this,
+                        "Storage Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+    }
+
+    public void setShowsConfirmUploadDialogs(boolean showsConfirmUploadDialogs) {
+        this.showsConfirmUploadDialogs = showsConfirmUploadDialogs;
+    }
+
+    private boolean showsConfirmUploadDialogs;
+
     // bugfix Issue #64
     private void showConfirmUploadDialog(
             final File file) {
         Log.d(TAG, "uploadFile");
 
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.activity_message_list_confirm_dialog_upload_title_label))
-                .setMessage(getString(R.string.activity_message_list_confirm_dialog_upload_message_label))
-                .setPositiveButton(getString(android.R.string.yes), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // upload the file
-                        uploadFile(file);
-                    }
-                })
-                .setNegativeButton(getString(android.R.string.no), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss(); // close the alert dialog
-                    }
-                }).show();
+        if (showsConfirmUploadDialogs) {
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.activity_message_list_confirm_dialog_upload_title_label))
+                    .setMessage(getString(R.string.activity_message_list_confirm_dialog_upload_message_label))
+                    .setPositiveButton(getString(android.R.string.yes), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // upload the file
+                            uploadFile(file);
+                        }
+                    })
+                    .setNegativeButton(getString(android.R.string.no), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss(); // close the alert dialog
+                        }
+                    }).show();
+        } else {
+            // upload the file
+            uploadFile(file);
+        }
     }
+
+    public void setCustomStorageHandler(IStorageHandler customStorageHandler) {
+        this.customStorageHandler = customStorageHandler;
+    }
+
+    private IStorageHandler customStorageHandler;
 
     // bugfix Issue #15
     private void uploadFile(File file) {
@@ -716,7 +782,7 @@ public class MessageListActivity extends AppCompatActivity
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        StorageHandler.uploadFile(this, file, new OnUploadedCallback() {
+        final OnUploadedCallback uploadedCallback = new OnUploadedCallback() {
             @Override
             public void onUploadSuccess(final String uid, final Uri downloadUrl, final String type) {
                 Log.d(TAG, "uploadFile.onUploadSuccess - downloadUrl: " + downloadUrl);
@@ -818,7 +884,13 @@ public class MessageListActivity extends AppCompatActivity
                         getString(R.string.activity_message_list_progress_dialog_upload_failed),
                         Toast.LENGTH_SHORT).show();
             }
-        });
+        };
+
+        if (customStorageHandler != null) {
+            customStorageHandler.uploadFile(getApplicationContext(), "image", file, recipient, uploadedCallback);
+        } else {
+            StorageHandler.uploadFile(getApplicationContext(), file, uploadedCallback);
+        }
     }
 
     @Override
