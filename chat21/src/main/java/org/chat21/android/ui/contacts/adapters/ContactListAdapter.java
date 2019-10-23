@@ -60,7 +60,7 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(ContactListAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         final IChatUser contact = contactListFiltered.get(position);
         holder.mContactFullName.setText(StringUtils.isValid(contact.getFullName()) ?
                 contact.getFullName() : contact.getId());

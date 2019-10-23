@@ -45,7 +45,7 @@ public class GroupMembersListAdapter extends AbstractRecyclerAdapter<IChatUser,
     }
 
     @Override
-    public GroupMembersListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 //        Log.d(TAG, "onCreateViewHolder");
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_group_members, parent, false);
@@ -53,7 +53,7 @@ public class GroupMembersListAdapter extends AbstractRecyclerAdapter<IChatUser,
     }
 
     @Override
-    public void onBindViewHolder(GroupMembersListAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
 //        Log.d(TAG, "onBindViewHolder");
         IChatUser contact = getItem(position);
 

@@ -41,7 +41,7 @@ public class PublicProfileActivity extends AppCompatActivity implements Presence
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.acticvity_public_profile);
+        setContentView(R.layout.activity_public_profile);
 
         contact = (IChatUser) getIntent().getSerializableExtra(ChatUI.BUNDLE_RECIPIENT);
 

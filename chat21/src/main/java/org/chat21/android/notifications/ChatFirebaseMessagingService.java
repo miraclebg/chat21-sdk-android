@@ -7,13 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import androidx.core.app.NotificationCompat;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-
-import java.util.Date;
 
 import org.chat21.android.R;
 import org.chat21.android.core.ChatManager;
@@ -23,7 +22,8 @@ import org.chat21.android.ui.ChatUI;
 import org.chat21.android.ui.messages.activities.MessageListActivity;
 import org.chat21.android.utils.StringUtils;
 
-import static org.chat21.android.ui.ChatUI.BUNDLE_CHANNEL_TYPE;
+import java.util.Date;
+
 import static org.chat21.android.utils.DebugConstants.DEBUG_NOTIFICATION;
 
 /**
@@ -95,27 +95,27 @@ public class ChatFirebaseMessagingService extends FirebaseMessagingService {
 
             if (channelType.equals(Message.DIRECT_CHANNEL_TYPE)) {
 
-                if(StringUtils.isValid(currentOpenConversationId) && !currentOpenConversationId.equals(sender)) {
+                if (StringUtils.isValid(currentOpenConversationId) && !currentOpenConversationId.equals(sender)) {
                     sendDirectNotification(sender, senderFullName, text, channelType);
                 } else {
-                    if(!StringUtils.isValid(currentOpenConversationId)) {
+                    if (!StringUtils.isValid(currentOpenConversationId)) {
                         sendDirectNotification(sender, senderFullName, text, channelType);
                     }
                 }
             } else if (channelType.equals(Message.GROUP_CHANNEL_TYPE)) {
-                if(StringUtils.isValid(currentOpenConversationId) && !currentOpenConversationId.equals(recipient)) {
+                if (StringUtils.isValid(currentOpenConversationId) && !currentOpenConversationId.equals(recipient)) {
                     sendGroupNotification(recipient, recipientFullName, senderFullName, text, channelType);
                 } else {
-                    if(!StringUtils.isValid(currentOpenConversationId)) {
+                    if (!StringUtils.isValid(currentOpenConversationId)) {
                         sendGroupNotification(recipient, recipientFullName, senderFullName, text, channelType);
                     }
                 }
             } else {
                 // default case
-                if(StringUtils.isValid(currentOpenConversationId) && !currentOpenConversationId.equals(sender)) {
+                if (StringUtils.isValid(currentOpenConversationId) && !currentOpenConversationId.equals(sender)) {
                     sendDirectNotification(sender, senderFullName, text, channelType);
                 } else {
-                    if(!StringUtils.isValid(currentOpenConversationId)) {
+                    if (!StringUtils.isValid(currentOpenConversationId)) {
                         sendDirectNotification(sender, senderFullName, text, channelType);
                     }
                 }
@@ -147,9 +147,9 @@ public class ChatFirebaseMessagingService extends FirebaseMessagingService {
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(ChatUI.BUNDLE_RECIPIENT, new ChatUser(sender, senderFullName));
-        intent.putExtra(BUNDLE_CHANNEL_TYPE, channel);
+        intent.putExtra(ChatUI.BUNDLE_CHANNEL_TYPE, channel);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 , intent,
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -196,9 +196,9 @@ public class ChatFirebaseMessagingService extends FirebaseMessagingService {
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(ChatUI.BUNDLE_RECIPIENT, new ChatUser(sender, senderFullName));
-        intent.putExtra(BUNDLE_CHANNEL_TYPE, channel);
+        intent.putExtra(ChatUI.BUNDLE_CHANNEL_TYPE, channel);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 , intent,
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

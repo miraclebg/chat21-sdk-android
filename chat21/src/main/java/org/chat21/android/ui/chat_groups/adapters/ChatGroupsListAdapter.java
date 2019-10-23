@@ -57,14 +57,14 @@ public class ChatGroupsListAdapter extends AbstractRecyclerAdapter<ChatGroup, Ch
     }
 
     @Override
-    public ChatGroupsListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_group, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ChatGroupsListAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         ChatGroup chatGroup = getItem(position);
 
         setName(holder, chatGroup.getName());
@@ -79,7 +79,7 @@ public class ChatGroupsListAdapter extends AbstractRecyclerAdapter<ChatGroup, Ch
     }
 
 
-    private void setName(ChatGroupsListAdapter.ViewHolder holder, String name) {
+    private void setName(ViewHolder holder, String name) {
         holder.name.setText(name);
     }
 
@@ -92,7 +92,7 @@ public class ChatGroupsListAdapter extends AbstractRecyclerAdapter<ChatGroup, Ch
 //        holder.createdOn.setText(timestampStr);
 //    }
 
-    private void setImage(ChatGroupsListAdapter.ViewHolder holder, String imageUrl) {
+    private void setImage(ViewHolder holder, String imageUrl) {
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
                 .placeholder(R.drawable.ic_group_avatar)
@@ -100,7 +100,7 @@ public class ChatGroupsListAdapter extends AbstractRecyclerAdapter<ChatGroup, Ch
                 .into(holder.image);
     }
 
-    private void setMembers(ChatGroupsListAdapter.ViewHolder holder, ChatGroup chatGroup) {
+    private void setMembers(ViewHolder holder, ChatGroup chatGroup) {
 
         String members;
         if (chatGroup.getMembersList() != null && chatGroup.getMembersList().size() > 0) {
@@ -114,7 +114,7 @@ public class ChatGroupsListAdapter extends AbstractRecyclerAdapter<ChatGroup, Ch
     }
 
     private void setOnGroupClickListener(
-            ChatGroupsListAdapter.ViewHolder holder,
+            ViewHolder holder,
             final ChatGroup chatGroup,
             final int position,
             final OnGroupClickListener callback) {

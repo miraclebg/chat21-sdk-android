@@ -77,14 +77,14 @@ public class ArchivedConversationsListAdapter extends AbstractRecyclerAdapter<Co
     }
 
     @Override
-    public ArchivedConversationsListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_archived_conversation, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ArchivedConversationsListAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         final Conversation conversation = getItem(position);
 
         setRecipientPicture(holder, conversation);

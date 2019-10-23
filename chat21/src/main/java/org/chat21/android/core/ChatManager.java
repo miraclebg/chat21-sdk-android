@@ -6,12 +6,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.ios.IosEmojiProvider;
@@ -93,7 +90,7 @@ public class ChatManager {
 
     public boolean isUserLogged() {
         Log.d(TAG, "ChatManager.isUserLogged");
-        boolean isUserLogged = getLoggedUser() != null ? true : false;
+        boolean isUserLogged = getLoggedUser() != null;
         Log.d(TAG, "ChatManager.isUserLogged: isUserLogged == " + isUserLogged);
         return isUserLogged;
     }
@@ -137,7 +134,7 @@ public class ChatManager {
         // save the user on contacts node
         contactsNode.child(uid).setValue(user, new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+            public void onComplete(DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
                 if (databaseError == null) {
                     callback.onContactCreatedSuccess(null);
                 } else {
@@ -150,8 +147,6 @@ public class ChatManager {
 
     /**
      * It initializes the SDK Anonymously using  DEFAULT appId.
-     *
-     * @param loginActivity
      */
     public static void startAnonymously(final Activity loginActivity, final ChatAuthentication.OnChatLoginCallback onChatLoginCallback) {
         startAnonymously(loginActivity, _DEFAULT_APP_ID_VALUE, onChatLoginCallback);
@@ -159,9 +154,6 @@ public class ChatManager {
 
     /**
      * It initializes the SDK Anonymously using DEFAULT appId.
-     *
-     * @param loginActivity
-     * @param appId
      */
     public static void startAnonymously(final Activity loginActivity, final String appId, final ChatAuthentication.OnChatLoginCallback onChatLoginCallback) {
 
@@ -224,11 +216,8 @@ public class ChatManager {
      * It initializes the SDK using DEFAULT appId and a current user.
      * It serializes the current user.
      * It serializes the configurations.
-     *
-     * @param context
-     * @param currentUser
      */
-    public static void start(Activity context, IChatUser currentUser) {
+    public static void start(Context context, IChatUser currentUser) {
         start(context, _DEFAULT_APP_ID_VALUE, currentUser);
     }
 
@@ -236,12 +225,8 @@ public class ChatManager {
      * It initializes the SDK specifing appId and the currentUser
      * It serializes the current user.
      * It serializes the configurations.
-     *
-     * @param context
-     * @param appId
-     * @param currentUser
      */
-    public static void start(Activity context, String appId, IChatUser currentUser) {
+    public static void start(Context context, String appId, IChatUser currentUser) {
 
         ChatManager.Configuration mChatConfiguration =
                 new ChatManager.Configuration.Builder(appId).build();
@@ -253,12 +238,8 @@ public class ChatManager {
      * It initializes the SDK passing a configuration object and the current user.
      * It serializes the current user.
      * It serializes the configurations.
-     *
-     * @param context
-     * @param configuration
-     * @param currentUser
      */
-    public static void start(Activity context, final Configuration configuration, IChatUser currentUser) {
+    public static void start(Context context, final Configuration configuration, IChatUser currentUser) {
         Log.i(TAG, "starting");
 
 //        // multidex support
@@ -313,7 +294,6 @@ public class ChatManager {
         } else {
             root = FirebaseDatabase.getInstance().getReference().child("/apps/" + configuration.appId + "/users/" + currentUser.getId() + "/instances/" + configuration.fcmToken);
         }
-
 
 
         Map<String, Object> device = new HashMap<>();
@@ -454,7 +434,6 @@ public class ChatManager {
             FirebaseInstanceId.getInstance().deleteInstanceId();
         } catch (IOException e) {
             Log.e(DEBUG_LOGIN, "cannot delete instanceId. " + e.getMessage());
-            return;
         }
     }
 
@@ -718,7 +697,7 @@ public class ChatManager {
                 return this;
             }
 
-            public Builder setAppName(String appName){
+            public Builder setAppName(String appName) {
                 this.appName = appName;
                 return this;
             }

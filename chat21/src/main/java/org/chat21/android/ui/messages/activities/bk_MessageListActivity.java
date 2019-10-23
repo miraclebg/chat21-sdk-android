@@ -1,4 +1,4 @@
-//package org.chat21.android.ui.messages.activities;
+package org.chat21.android.ui.messages.activities;//package org.chat21.android.ui.messages.activities;
 //
 //import android.annotation.TargetApi;
 //import android.app.ProgressDialog;
